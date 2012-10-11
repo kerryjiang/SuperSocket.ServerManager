@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Management.Shared;
+using SuperSocket.Management.Server.Model;
 using SuperSocket.SocketBase.Protocol;
 using SuperWebSocket.SubProtocol;
 
@@ -32,13 +32,23 @@ namespace SuperSocket.Management.Server.Command
 
             if (server == null)
             {
-                SendJsonResponse(session, token, new StopResult { Result = false, Message = string.Format("The server instance \"{0}\" doesn't exist", commandInfo) });
+                SendJsonMessage(session, token,
+                    new StopResult
+                    {
+                        Result = false,
+                        Message = string.Format("The server instance \"{0}\" doesn't exist", commandInfo)
+                    });
                 return;
             }
 
             server.Stop();
 
-            SendJsonResponse(session, token, new StartResult { Result = true, ServerInfo = session.AppServer.GetUpdatedCurrentServerInfo() });
+            SendJsonMessage(session, token,
+                new StartResult
+                {
+                    Result = true,
+                    NodeInfo = session.AppServer.CurrentNodeInfo
+                });
         }
     }
 }

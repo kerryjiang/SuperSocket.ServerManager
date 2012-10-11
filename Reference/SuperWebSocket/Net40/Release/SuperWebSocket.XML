@@ -376,7 +376,7 @@
             WebSocketSession basic interface
             </summary>
         </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.SendRawResponse(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:SuperWebSocket.IWebSocketSession.SendRawData(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Sends the raw binary response.
             </summary>
@@ -435,6 +435,14 @@
             Gets the URI scheme.
             </summary>
         </member>
+        <member name="P:SuperWebSocket.IWebSocketSession.Handshaked">
+            <summary>
+            Gets a value indicating whether this <see cref="T:SuperWebSocket.IWebSocketSession"/> is handshaked.
+            </summary>
+            <value>
+              <c>true</c> if handshaked; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:SuperWebSocket.IWebSocketSession.AppServer">
             <summary>
             Gets the app server.
@@ -458,23 +466,40 @@
             Sets the cookie.
             </summary>
         </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.OnHandShaked">
+        <member name="M:SuperWebSocket.WebSocketSession`1.Send(System.String)">
             <summary>
-            Called when [hand shaked].
+            Sends the response.
             </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:SuperWebSocket.WebSocketSession`1.Send(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Sends the response.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+        </member>
+        <member name="M:SuperWebSocket.WebSocketSession`1.Send(System.ArraySegment{System.Byte})">
+            <summary>
+            Sends the response.
+            </summary>
+            <param name="segment">The segment.</param>
+        </member>
+        <member name="M:SuperWebSocket.WebSocketSession`1.SuperWebSocket#IWebSocketSession#SendRawData(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Sends the raw binary data.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.String)">
             <summary>
             Sends the response.
             </summary>
             <param name="message">The message.</param>
-        </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.String,System.Object[])">
-            <summary>
-            Sends the response.
-            </summary>
-            <param name="message">The message.</param>
-            <param name="paramValues">The param values.</param>
+            <returns></returns>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
@@ -483,20 +508,14 @@
             <param name="data">The data.</param>
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
+            <returns></returns>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.ArraySegment{System.Byte})">
             <summary>
             Sends the response.
             </summary>
             <param name="segment">The segment.</param>
-        </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SuperWebSocket#IWebSocketSession#SendRawResponse(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Sends the raw binary response.
-            </summary>
-            <param name="data">The data.</param>
-            <param name="offset">The offset.</param>
-            <param name="length">The length.</param>
+            <returns></returns>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.CloseWithHandshake(System.String)">
             <summary>
@@ -609,6 +628,14 @@
             Gets the sub protocol.
             </summary>
         </member>
+        <member name="P:SuperWebSocket.WebSocketSession`1.Handshaked">
+            <summary>
+            Gets a value indicating whether this <see cref="T:SuperWebSocket.IWebSocketSession"/> is handshaked.
+            </summary>
+            <value>
+              <c>true</c> if handshaked; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:SuperWebSocket.WebSocketSession`1.InClosing">
             <summary>
             Gets a value indicating whether the session [in closing].
@@ -630,9 +657,9 @@
             The protocol processor.
             </value>
         </member>
-        <member name="M:SuperWebSocket.JsonWebSocketSession`1.SendJsonResponse(System.String,System.Object)">
+        <member name="M:SuperWebSocket.JsonWebSocketSession`1.SendJsonMessage(System.String,System.Object)">
             <summary>
-            Sends the json response.
+            Sends the json message.
             </summary>
             <param name="name">The name.</param>
             <param name="content">The content.</param>
@@ -980,7 +1007,7 @@
             The length of Sec3Key
             </summary>
         </member>
-        <member name="M:SuperWebSocket.Protocol.WebSocketRequestFilterBase.#ctor">
+        <member name="M:SuperWebSocket.Protocol.WebSocketRequestFilterBase.#ctor(SuperWebSocket.IWebSocketSession)">
             <summary>
             Initializes a new instance of the <see cref="T:SuperWebSocket.Protocol.WebSocketRequestFilterBase"/> class.
             </summary>
@@ -1079,25 +1106,11 @@
             <param name="session">The session.</param>
             <param name="commandInfo">The command info.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommandBase`2.SerializeObject(System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommandBase`2.GetJsonMessage(`0,System.String,System.String,System.Object)">
             <summary>
-            Serializes the object.
+            Gets the json message.
             </summary>
-            <param name="value">The value.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommandBase`2.GetJsonResponse(System.String,System.Object)">
-            <summary>
-            Gets the json response.
-            </summary>
-            <param name="token">The token.</param>
-            <param name="content">The content.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommandBase`2.GetJsonResponse(System.String,System.String,System.Object)">
-            <summary>
-            Gets the json response.
-            </summary>
+            <param name="session">The session.</param>
             <param name="name">The name.</param>
             <param name="token">The token.</param>
             <param name="content">The content.</param>
@@ -1123,17 +1136,17 @@
             <param name="token">The token.</param>
             <param name="commandInfo">The command info.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.AsyncJsonSubCommand`2.SendJsonResponse(`0,System.String,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.AsyncJsonSubCommand`2.SendJsonMessage(`0,System.String,System.Object)">
             <summary>
-            Sends the json response.
+            Sends the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="token">The token.</param>
             <param name="content">The content.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.AsyncJsonSubCommand`2.SendJsonResponse(`0,System.String,System.String,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.AsyncJsonSubCommand`2.SendJsonMessage(`0,System.String,System.String,System.Object)">
             <summary>
-            Sends the json response.
+            Sends the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="name">The name.</param>
@@ -1174,7 +1187,7 @@
             </summary>
             <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.ISubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.Common.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.ISubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
@@ -1207,7 +1220,7 @@
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.SubProtocolBase`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.Common.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.SubProtocolBase`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
@@ -1287,7 +1300,7 @@
             <param name="commandAssemblies">The command assemblies.</param>
             <param name="requestInfoParser">The request info parser.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.BasicSubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.Common.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.BasicSubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
@@ -1303,11 +1316,6 @@
             <param name="name">The name.</param>
             <param name="command">The command.</param>
             <returns></returns>
-        </member>
-        <member name="P:SuperWebSocket.SubProtocol.BasicSubProtocol`1.DefaultInstance">
-            <summary>
-            Gets the default basic protocol instance.
-            </summary>
         </member>
         <member name="M:SuperWebSocket.SubProtocol.BasicSubProtocol.#ctor">
             <summary>
@@ -1367,33 +1375,33 @@
             <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
             <typeparam name="TJsonCommandInfo">The type of the json command info.</typeparam>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.GetJsonResponse(`0,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.GetJsonMessage(`0,System.Object)">
             <summary>
-            Gets the json response.
+            Gets the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="content">The content.</param>
             <returns></returns>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.GetJsonResponse(`0,System.String,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.GetJsonMessage(`0,System.String,System.Object)">
             <summary>
-            Gets the json response.
+            Gets the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="name">The name.</param>
             <param name="content">The content.</param>
             <returns></returns>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.SendJsonResponse(`0,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.SendJsonMessage(`0,System.Object)">
             <summary>
-            Sends the json response.
+            Sends the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="content">The content.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.SendJsonResponse(`0,System.String,System.Object)">
+        <member name="M:SuperWebSocket.SubProtocol.JsonSubCommand`2.SendJsonMessage(`0,System.String,System.Object)">
             <summary>
-            Sends the json response.
+            Sends the json message.
             </summary>
             <param name="session">The session.</param>
             <param name="name">The name.</param>
@@ -1432,12 +1440,13 @@
             Initializes a new instance of the <see cref="T:SuperWebSocket.WebSocketProtocol"/> class.
             </summary>
         </member>
-        <member name="M:SuperWebSocket.WebSocketProtocol.CreateFilter(SuperSocket.SocketBase.IAppServer,SuperSocket.SocketBase.ISocketSession)">
+        <member name="M:SuperWebSocket.WebSocketProtocol.CreateFilter(SuperSocket.SocketBase.IAppServer,SuperSocket.SocketBase.IAppSession,System.Net.IPEndPoint)">
             <summary>
             Creates the filter.
             </summary>
             <param name="appServer">The app server.</param>
-            <param name="socketSession">The socket session.</param>
+            <param name="appSession">The app session.</param>
+            <param name="remoteEndPoint">The remote end point.</param>
             <returns></returns>
         </member>
         <member name="T:SuperWebSocket.IWebSocketServer">
@@ -1449,15 +1458,6 @@
             <summary>
             Gets the web socket protocol processor.
             </summary>
-        </member>
-        <member name="T:SuperWebSocket.SessionEventHandler`2">
-            <summary>
-            Session related event handler
-            </summary>
-            <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
-            <typeparam name="TEventArgs">The type of the event args.</typeparam>
-            <param name="session">The session.</param>
-            <param name="e">The instance containing the event data.</param>
         </member>
         <member name="T:SuperWebSocket.WebSocketServer">
             <summary>
@@ -1509,14 +1509,12 @@
             <param name="name">The name.</param>
             <returns></returns>
         </member>
-        <member name="M:SuperWebSocket.WebSocketServer`1.Setup(SuperSocket.SocketBase.Config.IRootConfig,SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.ISocketServerFactory,SuperSocket.SocketBase.Protocol.IRequestFilterFactory{SuperWebSocket.Protocol.IWebSocketFragment})">
+        <member name="M:SuperWebSocket.WebSocketServer`1.Setup(SuperSocket.SocketBase.Config.IRootConfig,SuperSocket.SocketBase.Config.IServerConfig)">
             <summary>
-            Setups with the specified root config and other parameters.
+            Setups with the specified root config.
             </summary>
             <param name="rootConfig">The root config.</param>
             <param name="config">The config.</param>
-            <param name="socketServerFactory">The socket server factory.</param>
-            <param name="protocol">The protocol.</param>
             <returns></returns>
         </member>
         <member name="M:SuperWebSocket.WebSocketServer`1.OnStartup">
@@ -1534,7 +1532,7 @@
             <summary>
             Setups the commands.
             </summary>
-            <param name="commandDict">The command dict.</param>
+            <param name="discoveredCommands">The discovered commands.</param>
             <returns></returns>
         </member>
         <member name="M:SuperWebSocket.WebSocketServer`1.ExecuteCommand(`0,SuperWebSocket.Protocol.IWebSocketFragment)">
@@ -1544,10 +1542,31 @@
             <param name="session">The session.</param>
             <param name="requestInfo">The request info.</param>
         </member>
+        <member name="M:SuperWebSocket.WebSocketServer`1.JsonSerialize(System.Object)">
+            <summary>
+            Serialize the target object by JSON
+            </summary>
+            <param name="target">The target.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperWebSocket.WebSocketServer`1.JsonDeserialize(System.String,System.Type)">
+            <summary>
+            Deserialize the JSON string to target type object.
+            </summary>
+            <param name="json">The json.</param>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
         <member name="P:SuperWebSocket.WebSocketServer`1.RequestFilterFactory">
             <summary>
             Gets the request filter factory.
             </summary>
+        </member>
+        <member name="E:SuperWebSocket.WebSocketServer`1.NewRequestReceived">
+            <summary>
+            Occurs when [new request received].
+            </summary>
+            <exception cref="T:System.NotSupportedException"></exception>
         </member>
         <member name="E:SuperWebSocket.WebSocketServer`1.NewMessageReceived">
             <summary>
@@ -1584,6 +1603,11 @@
         <member name="P:SuperWebSocket.WebSocketSession.AppServer">
             <summary>
             Gets the app server.
+            </summary>
+        </member>
+        <member name="M:SuperWebSocket.Protocol.WebSocketDataRequestFilter.Reset">
+            <summary>
+            Resets this instance.
             </summary>
         </member>
     </members>

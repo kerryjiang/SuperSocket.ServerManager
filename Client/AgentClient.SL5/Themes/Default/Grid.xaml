@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk">
+    <!--Cell-->
+    <Style x:Key="CellStyle" TargetType="sdk:DataGridCell" >
+        <Setter Property="Padding" Value="2 5 2 5" />
+    </Style>
+    <!--DataGrid -->
+    <Style TargetType="sdk:DataGrid">
+        <Setter Property='CellStyle' Value='{StaticResource CellStyle}' />
+        <Setter Property='FontSize' Value='11' />
+        <Setter Property='FontFamily' Value='Verdana' />
+    </Style>
+</ResourceDictionary>

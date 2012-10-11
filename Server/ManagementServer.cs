@@ -5,7 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using SuperSocket.Common;
 using SuperSocket.Management.Server.Config;
-using SuperSocket.Management.Shared;
+using SuperSocket.Management.Server.Model;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
@@ -22,6 +22,8 @@ namespace SuperSocket.Management.Server
     {
         private Dictionary<string, UserConfig> m_UsersDict;
 
+        private string[] m_ExcludedServers;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ManagementServer"/> class.
         /// </summary>
@@ -31,17 +33,16 @@ namespace SuperSocket.Management.Server
 
         }
 
+
         /// <summary>
-        /// Setups with the specified parameters.
+        /// Setups the specified root config.
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="protocol">The protocol.</param>
         /// <returns></returns>
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<IWebSocketFragment> protocol)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
         {
-            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
+            if (!base.Setup(rootConfig, config))
                 return false;
 
             var users = config.GetChildConfig<UserConfigCollection>("users");
@@ -59,80 +60,107 @@ namespace SuperSocket.Management.Server
                 m_UsersDict.Add(u.Name, u);
             }
 
+            m_ExcludedServers = config.Options.GetValue("excludedServers", string.Empty).Split(
+                new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
             return true;
         }
 
-        /// <summary>
-        /// Called when [startup].
-        /// </summary>
-        protected override void OnStartup()
-        {
-            m_ServerState = new ServerState
-            {
-                InstanceStates = Bootstrap.AppServers.Where(s => s != this).Select(s => new InstanceState
-                {
-                    Instance = s
-                }).ToArray()
-            };
 
-            Bootstrap.PerformanceDataCollected += new EventHandler<PermformanceDataEventArgs>(BootstrapPerformanceDataCollected);
-            base.OnStartup();
-        }
+        internal NodeInfo CurrentNodeInfo { get; private set; }
 
-        /// <summary>
-        /// Called when [stopped].
-        /// </summary>
-        protected override void OnStopped()
-        {
-            Bootstrap.PerformanceDataCollected -= new EventHandler<PermformanceDataEventArgs>(BootstrapPerformanceDataCollected);
-            base.OnStopped();
-        }
-
-        private ServerState m_ServerState;
-
-        internal ServerInfo CurrentServerInfo { get; private set; }
-
-        void BootstrapPerformanceDataCollected(object sender, PermformanceDataEventArgs e)
-        {
-            m_ServerState.GlobalPerformance = e.GlobalData;
-
-            var performanceDict = new Dictionary<string, PerformanceData>(e.InstancesData.Length, StringComparer.OrdinalIgnoreCase);
-
-            for (var i = 0; i < e.InstancesData.Length; i++)
-            {
-                var p = e.InstancesData[i];
-                performanceDict.Add(p.ServerName, p.Data);
-            }
-
-            for (var i = 0; i < m_ServerState.InstanceStates.Length; i++)
-            {
-                var s = m_ServerState.InstanceStates[i];
-
-                PerformanceData p;
-
-                if (performanceDict.TryGetValue(s.Instance.Name, out p))
-                    s.Performance = p;
-            }
-
-            CurrentServerInfo = m_ServerState.ToServerInfo();
-
-            var content = CommandName.UPDATE + " " + JsonConvert.SerializeObject(CurrentServerInfo);
-
-            foreach (var s in GetSessions(s => s.LoggedIn))
-            {
-                s.SendResponse(content);
-            }
-        }
-
-        internal ServerInfo GetUpdatedCurrentServerInfo()
-        {
-            CurrentServerInfo = m_ServerState.ToServerInfo();
-            return CurrentServerInfo;
-        }
-
-        internal IAppServer GetServerByName(string name)
+        internal IWorkItem GetServerByName(string name)
         {
             return Bootstrap.AppServers.FirstOrDefault(i => name.Equals(i.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Called when [server state collected].
+        /// </summary>
+        /// <param name="globalPerfData">The global perf data.</param>
+        /// <param name="state">The state.</param>
+        protected override void OnServerStateCollected(GlobalPerformanceData globalPerfData, ServerState state)
+        {
+            Async.AsyncRun(this, (o) => MergeServerState(o), globalPerfData);
+            base.OnServerStateCollected(globalPerfData, state);
+        }
+
+        private void MergeServerState(object state)
+        {
+            var globalPerfData = state as GlobalPerformanceData;
+
+            var instances = Bootstrap.AppServers.OfType<IWorkItem>().Where(s => !s.Name.Equals(this.Name, StringComparison.OrdinalIgnoreCase));
+            
+            if(m_ExcludedServers != null && m_ExcludedServers.Length > 0)
+            {
+                instances = instances.Where(s => !m_ExcludedServers.Contains(s.Name, StringComparer.OrdinalIgnoreCase));
+            }
+
+            CurrentNodeInfo = new NodeInfo
+                {
+                    GlobalInfo = globalPerfData,
+                    Instances = instances.Select(s => s.State).ToArray()
+                };
+
+            if (StateFieldMetadatas == null)
+                StateFieldMetadatas = GetStateFieldMetadatas(CurrentNodeInfo.Instances);
+        }
+
+        internal StateFieldMetadata[] StateFieldMetadatas { get; private set; }
+
+        internal StateFieldMetadata[] GetStateFieldMetadatas(ServerState[] states)
+        {
+            var stateMetadataDict = new Dictionary<Type, StateFieldMetadata>();
+
+            foreach (var s in states)
+            {
+                StateFieldMetadata metadata;
+
+                if (stateMetadataDict.TryGetValue(s.GetType(), out metadata))
+                {
+                    metadata.InstanceNames.Add(s.Name);
+                }
+                else
+                {
+                    metadata = new StateFieldMetadata();
+                    metadata.InstanceNames = new List<string> { s.Name };
+                    metadata.Fields = GetClientFieldAttributes(s.GetType()).ToArray();
+                    stateMetadataDict.Add(s.GetType(), metadata);
+                }
+            }
+
+            var globalDataType = typeof(GlobalPerformanceData);
+
+            stateMetadataDict.Add(globalDataType, new StateFieldMetadata
+                {
+                    InstanceNames = null,
+                    Fields = GetClientFieldAttributes(globalDataType).ToArray()
+                });
+
+            return stateMetadataDict.Values.ToArray();
+        }
+
+        private List<ClientFieldAttribute> GetClientFieldAttributes(Type type)
+        {
+            var list = new List<ClientFieldAttribute>();
+
+            foreach (var p in type.GetProperties())
+            {
+                var att = p.GetCustomAttributes(false).FirstOrDefault() as DisplayAttribute;
+
+                if (att != null)
+                {
+                    var clientAtt = new ClientFieldAttribute(att);
+                    clientAtt.PropertyName = p.Name;
+                    if (p.PropertyType.IsPrimitive)
+                        clientAtt.DataType = p.PropertyType;
+                    else
+                        clientAtt.DataType = typeof(string);
+                    list.Add(clientAtt);
+                }
+            }
+
+            return list;
         }
 
         internal UserConfig GetUserByName(string name)
@@ -140,6 +168,18 @@ namespace SuperSocket.Management.Server
             UserConfig user;
             m_UsersDict.TryGetValue(name, out user);
             return user;
+        }
+
+        private static JsonConverter m_IPEndPointConverter = new ListenersJsonConverter();
+
+        /// <summary>
+        /// Jsons the serialize.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <returns></returns>
+        public override string JsonSerialize(object target)
+        {
+            return JsonConvert.SerializeObject(target, m_IPEndPointConverter);
         }
     }
 }

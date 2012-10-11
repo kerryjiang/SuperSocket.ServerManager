@@ -69,22 +69,23 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ClientFieldAttribute.cs" />
     <Compile Include="Config\UserConfig.cs" />
     <Compile Include="Config\UserConfigCollection.cs" />
-    <Compile Include="InstanceState.cs" />
-    <Compile Include="ServerState.cs" />
     <Compile Include="Command\LOGIN.cs" />
     <Compile Include="Command\START.cs" />
     <Compile Include="Command\STOP.cs" />
+    <Compile Include="ListenersJsonConverter.cs" />
     <Compile Include="ManagementServer.cs" />
     <Compile Include="ManagementSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj">
-      <Project>{6E1D1F75-B8D9-4935-A9B5-9DC8D89E41D9}</Project>
-      <Name>Shared</Name>
-    </ProjectReference>
+    <Compile Include="Model\CommandName.cs" />
+    <Compile Include="Model\LoginInfo.cs" />
+    <Compile Include="Model\LoginResult.cs" />
+    <Compile Include="Model\NodeInfo.cs" />
+    <Compile Include="Model\StartResult.cs" />
+    <Compile Include="Model\StateFieldMetadata.cs" />
+    <Compile Include="Model\StopResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

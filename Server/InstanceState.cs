@@ -17,7 +17,7 @@ namespace SuperSocket.Management.Server
         /// <value>
         /// The instance.
         /// </value>
-        public IAppServer Instance { get; set; }
+        public IWorkItem Instance { get; set; }
 
         /// <summary>
         /// Gets or sets the performance stat.

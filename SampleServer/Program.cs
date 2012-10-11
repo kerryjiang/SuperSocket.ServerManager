@@ -15,10 +15,9 @@ namespace SampleServer
         {
             Console.WriteLine("Press any key to start server!");
 
-            var bootstrap = new DefaultBootstrap();
-            var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
+            var bootstrap = BootstrapFactory.CreateBootstrap();
 
-            if (!bootstrap.Initialize(serverConfig))
+            if (!bootstrap.Initialize())
             {
                 Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
                 return;
