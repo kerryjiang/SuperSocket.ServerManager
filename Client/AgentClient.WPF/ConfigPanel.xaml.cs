@@ -30,7 +30,7 @@ namespace SuperSocket.Management.AgentClient
         private void Grid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var viewModel = e.NewValue as NodeConfigViewModel;
-            Password.Password = viewModel.Password;
+            Password.Password = viewModel.Password ?? string.Empty;
         }
     }
 }
