@@ -61,7 +61,10 @@ namespace SuperSocket.Management.AgentClient.Controls
 
             if (!(bool)GetIsUpdating(passwordBox))
             {
-                passwordBox.Password = (string)e.NewValue;
+                if (e.NewValue == null)
+                    passwordBox.Password = string.Empty;
+                else
+                    passwordBox.Password = (string)e.NewValue;
             }
             passwordBox.PasswordChanged += PasswordChanged;
         }

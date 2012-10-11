@@ -31,6 +31,6 @@ namespace SuperSocket.Management.AgentClient
         {
             var viewModel = e.NewValue as NodeConfigViewModel;
             Password.Password = viewModel.Password ?? string.Empty;
-        }
+       }
     }
 }
