@@ -24,7 +24,7 @@
         </StackPanel>
         <ListBox ItemsSource="{Binding Nodes}"
                  Grid.Column="0" Grid.Row="1" Margin="5"
-                 SelectedValue="{Binding SelectedNode}">
+                 SelectedValue="{Binding Path=SelectedNode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock x:Name="NodeName" Text="{Binding Name}"></TextBlock>

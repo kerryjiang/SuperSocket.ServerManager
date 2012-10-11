@@ -29,8 +29,15 @@ namespace SuperSocket.Management.AgentClient
 #if SILVERLIGHT
         private void Configure_Click(object sender, RoutedEventArgs e)
         {
-            var window = new ConfigWindow();
-            window.Show();
+            var win = new ChildWindow();
+            win.Title = "Configure";
+            win.Content = new ConfigPanel()
+            {
+                DataContext = new ConfigViewModel(AgentConfig.Load())
+            };
+            win.Width = 600;
+            win.Height = 300;
+            win.Show();
         }
 #else
         private void Configure_Click(object sender, RoutedEventArgs e)

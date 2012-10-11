@@ -78,7 +78,7 @@
                                  Angle="0" />
             </Canvas.RenderTransform>
             <Canvas.Triggers>
-                <EventTrigger RoutedEvent="Loaded">
+                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                     <BeginStoryboard>
                         <BeginStoryboard.Storyboard>
                             <Storyboard>
