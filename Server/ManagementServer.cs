@@ -103,7 +103,22 @@ namespace SuperSocket.Management.Server
                 };
 
             if (StateFieldMetadatas == null)
+            {
                 StateFieldMetadatas = GetStateFieldMetadatas(CurrentNodeInfo.Instances);
+            }
+
+            BroadcastServerUpdate();
+        }
+
+        private void BroadcastServerUpdate()
+        {
+            var message = string.Format("{0} {1}", CommandName.UPDATE, JsonSerialize(CurrentNodeInfo));
+
+            //Only push update to loged in sessions
+            foreach (var s in this.GetSessions(s => s.Connected && s.LoggedIn))
+            {
+                s.Send(message);
+            }
         }
 
         internal StateFieldMetadata[] StateFieldMetadatas { get; private set; }

@@ -11,17 +11,24 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SuperSocket.Management.AgentClient.ViewModel;
 
 namespace SuperSocket.Management.AgentClient
 {
     /// <summary>
-    /// Interaction logic for NodeHeader.xaml
+    /// Interaction logic for NodeIndo.xaml
     /// </summary>
-    public partial class NodeHeader : UserControl
+    public partial class NodeInfo : UserControl
     {
-        public NodeHeader()
+        public NodeInfo()
         {
             InitializeComponent();
+        }
+
+        private void Grid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as NodeMasterViewModel;
+            viewModel.NodeDetailDataContextChanged(sender, e);
         }
     }
 }

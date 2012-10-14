@@ -76,6 +76,7 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Controls, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Controls.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Controls.Input.Toolkit, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Browser" />
     <Reference Include="System.Xml" />
@@ -85,6 +86,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Server\Model\CommandName.cs">
+      <Link>CommandName.cs</Link>
+    </Compile>
     <Compile Include="..\AgentClient.WPF\AgentWebSocket.cs">
       <Link>AgentWebSocket.cs</Link>
     </Compile>
@@ -111,6 +115,12 @@
     <Compile Include="..\AgentClient.WPF\Controls\PasswordHelper.cs">
       <Link>Controls\PasswordHelper.cs</Link>
     </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\DebugConverter.cs">
+      <Link>Converters\DebugConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\ToStringConverter.cs">
+      <Link>Converters\ToStringConverter.cs</Link>
+    </Compile>
     <Compile Include="..\AgentClient.WPF\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
@@ -127,6 +137,10 @@
     <Compile Include="..\AgentClient.WPF\NodeHeader.xaml.cs">
       <Link>NodeHeader.xaml.cs</Link>
       <DependentUpon>NodeHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\NodeInfo.xaml.cs">
+      <Link>NodeInfo.xaml.cs</Link>
+      <DependentUpon>NodeInfo.xaml</DependentUpon>
     </Compile>
     <Compile Include="..\AgentClient.WPF\ViewModel\ConfigViewModel.cs">
       <Link>ViewModel\ConfigViewModel.cs</Link>
@@ -149,6 +163,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Behaviors\SelectRowOnRightClickBehavior.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -176,6 +191,11 @@
     </Page>
     <Page Include="..\AgentClient.WPF\NodeHeader.xaml">
       <Link>NodeHeader.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\NodeInfo.xaml">
+      <Link>NodeInfo.xaml</Link>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

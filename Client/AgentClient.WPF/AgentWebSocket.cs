@@ -26,10 +26,10 @@ namespace SuperSocket.Management.AgentClient
 
         protected override object DeserializeObject(string json, Type type)
         {
-            if (!m_DynamicTypeInterface.IsAssignableFrom(type))
-                return JsonConvert.DeserializeObject(json, type);
+            //if(type == typeof(JObject))
+            //    return JObject.Parse(json);
 
-            return JObject.Parse(json);
+            return JsonConvert.DeserializeObject(json, type);
         }
     }
 }

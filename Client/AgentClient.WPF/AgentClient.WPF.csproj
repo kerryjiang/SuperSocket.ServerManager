@@ -74,7 +74,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\..\Server\Model\CommandName.cs">
+      <Link>CommandName.cs</Link>
+    </Compile>
     <Compile Include="AgentWebSocket.cs" />
+    <Compile Include="Behaviors\ContextMenuBehavior.cs" />
     <Compile Include="Command\GenericDelegateCommand.cs" />
     <Compile Include="Command\DelegateCommand.cs" />
     <Compile Include="ConfigPanel.xaml.cs">
@@ -84,6 +88,8 @@
       <DependentUpon>CircleProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PasswordHelper.cs" />
+    <Compile Include="Converters\DebugConverter.cs" />
+    <Compile Include="Converters\ToStringConverter.cs" />
     <Compile Include="MainPanel.xaml.cs">
       <DependentUpon>MainPanel.xaml</DependentUpon>
     </Compile>
@@ -91,6 +97,9 @@
     <Compile Include="Metadata\StateFieldMetadata.cs" />
     <Compile Include="NodeHeader.xaml.cs">
       <DependentUpon>NodeHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NodeInfo.xaml.cs">
+      <DependentUpon>NodeInfo.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ConfigViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
@@ -126,6 +135,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="NodeHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NodeInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -29,12 +29,20 @@ namespace SuperSocket.Management.AgentClient
 #if SILVERLIGHT
         private void Configure_Click(object sender, RoutedEventArgs e)
         {
+            var mainViewModel = this.DataContext as MainViewModel;
             var win = new ChildWindow();
             win.Title = "Configure";
+
+            var configViewModel = new ConfigViewModel(mainViewModel.AgentConfig);
+            configViewModel.Removed += mainViewModel.OnNodeRemoved;
+            configViewModel.Updated += mainViewModel.OnNodeUpdated;
+            configViewModel.Added += mainViewModel.OnNodeAdded;
+
             win.Content = new ConfigPanel()
             {
-                DataContext = new ConfigViewModel(AgentConfig.Load())
+                DataContext = configViewModel
             };
+
             win.Width = 600;
             win.Height = 300;
             win.Show();
@@ -42,13 +50,22 @@ namespace SuperSocket.Management.AgentClient
 #else
         private void Configure_Click(object sender, RoutedEventArgs e)
         {
+            var mainViewModel = this.DataContext as MainViewModel;
+
             var win = new Window();
             win.Title = "Configure";
             win.Owner = App.Current.MainWindow;
+
+            var configViewModel = new ConfigViewModel(mainViewModel.AgentConfig);
+            configViewModel.Removed += mainViewModel.OnNodeRemoved;
+            configViewModel.Updated += mainViewModel.OnNodeUpdated;
+            configViewModel.Added += mainViewModel.OnNodeAdded;
+
             win.Content = new ConfigPanel()
             {
-                DataContext = new ConfigViewModel(AgentConfig.Load())
+                DataContext = configViewModel
             };
+
             win.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             win.WindowStyle = WindowStyle.SingleBorderWindow;
             win.ResizeMode = ResizeMode.NoResize;

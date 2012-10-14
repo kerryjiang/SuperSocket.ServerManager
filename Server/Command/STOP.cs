@@ -28,7 +28,9 @@ namespace SuperSocket.Management.Server.Command
                 return;
             }
 
-            var server = session.AppServer.GetServerByName(commandInfo);
+            var instanceName = commandInfo;
+
+            var server = session.AppServer.GetServerByName(instanceName);
 
             if (server == null)
             {
@@ -43,11 +45,15 @@ namespace SuperSocket.Management.Server.Command
 
             server.Stop();
 
+            var nodeInfo = session.AppServer.CurrentNodeInfo;
+            var instance = nodeInfo.Instances.FirstOrDefault(i => i.Name.Equals(instanceName));
+            instance.IsRunning = false;
+
             SendJsonMessage(session, token,
                 new StartResult
                 {
                     Result = true,
-                    NodeInfo = session.AppServer.CurrentNodeInfo
+                    NodeInfo = nodeInfo
                 });
         }
     }

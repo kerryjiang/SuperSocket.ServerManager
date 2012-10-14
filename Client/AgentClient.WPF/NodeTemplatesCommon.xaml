@@ -11,7 +11,7 @@
     </DataTemplate>
     <DataTemplate x:Key="NodeTemplateOffline">
         <Grid HorizontalAlignment="Stretch" Height="100">
-            <TextBlock Text="Offline" VerticalAlignment="Center" HorizontalAlignment="Center"
+            <TextBlock Text="{Binding ErrorMessage}" VerticalAlignment="Center" HorizontalAlignment="Center"
                            Style="{StaticResource NodeStatus}"></TextBlock>
         </Grid>
     </DataTemplate>

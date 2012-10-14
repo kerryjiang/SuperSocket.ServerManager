@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
-using DynamicViewModel;
-using SuperSocket.ClientEngine;
-using SuperSocket.Management.AgentClient.Config;
-using SuperSocket.Management.AgentClient.Metadata;
-using WebSocket4Net;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Threading;
+using System.Windows.Input;
+using System.Windows.Media;
+using DynamicViewModel;
+using Newtonsoft.Json.Linq;
+using SuperSocket.ClientEngine;
+using SuperSocket.Management.AgentClient.Command;
+using SuperSocket.Management.AgentClient.Config;
+using SuperSocket.Management.AgentClient.Metadata;
+using SuperSocket.Management.Server.Model;
+using WebSocket4Net;
+using System.Windows.Threading;
 
 namespace SuperSocket.Management.AgentClient.ViewModel
 {
@@ -29,6 +36,11 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         private ClientFieldAttribute[] m_ColumnAttributes;
 
         private ClientFieldAttribute[] m_NodeDetailAttributes;
+
+        public NodeConfig Config
+        {
+            get { return m_Config; }
+        }
 
         public NodeMasterViewModel(NodeConfig config)
         {
@@ -49,13 +61,14 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             m_WebSocket.Closed += new EventHandler(WebSocket_Closed);
             m_WebSocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(WebSocket_Error);
             m_WebSocket.Opened += new EventHandler(WebSocket_Opened);
+            m_WebSocket.On<string>(CommandName.UPDATE, OnServerUpdated);
 #else
             m_WebSocket.ClientAccessPolicyProtocol = System.Net.Sockets.SocketClientAccessPolicyProtocol.Tcp;
             m_WebSocket.Closed += new EventHandler(CreateAsyncOperation<object, EventArgs>(WebSocket_Closed));
             m_WebSocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(CreateAsyncOperation<object, ClientEngine.ErrorEventArgs>(WebSocket_Error));
             m_WebSocket.Opened += new EventHandler(CreateAsyncOperation<object, EventArgs>(WebSocket_Opened));
+            m_WebSocket.On<string>(CommandName.UPDATE, OnServerUpdatedAsync);
 #endif
-            
             m_WebSocket.Open();
             State = NodeState.Connecting;
         }
@@ -70,9 +83,9 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             loginInfo.Password = m_Config.Password;
 
 #if !SILVERLIGHT
-            websocket.Query<dynamic>("LOGIN", (object)loginInfo, OnLoggedIn);
+            websocket.Query<dynamic>(CommandName.LOGIN, (object)loginInfo, OnLoggedIn);
 #else
-            websocket.Query<dynamic>("LOGIN", (object)loginInfo, OnLoggedInAsync);
+            websocket.Query<dynamic>(CommandName.LOGIN, (object)loginInfo, OnLoggedInAsync);
 #endif
         }
 
@@ -90,13 +103,117 @@ namespace SuperSocket.Management.AgentClient.ViewModel
                 m_FieldMetadatas = result["FieldMetadatas"].ToObject<StateFieldMetadata[]>();
                 var nodeInfo = DynamicViewModelFactory.Create(result["NodeInfo"].ToString());
                 BuildGridColumns(m_FieldMetadatas);
-                DetailViewModel = nodeInfo;
                 GlobalInfo = nodeInfo.GlobalInfo;
+                var instances = nodeInfo.Instances as IEnumerable<DynamicViewModel.DynamicViewModel>;
+                Instances = new ObservableCollection<DynamicViewModel.DynamicViewModel>(instances.Select(i =>
+                    {
+                        var startCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteStartCommand, CanExecuteStartCommand);
+                        var stopCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteStopCommand, CanExecuteStopCommand);
+
+                        i.PropertyChanged += (s, e) =>
+                            {
+                                if (string.IsNullOrEmpty(e.PropertyName)
+                                    || e.PropertyName.Equals("IsRunning", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    startCommand.RaiseCanExecuteChanged();
+                                    stopCommand.RaiseCanExecuteChanged();
+                                }
+                            };
+
+                        i.Set("StartCommand", startCommand);
+                        i.Set("StopCommand", stopCommand);
+
+                        return i;
+                    }));
                 State = NodeState.Connected;
+                LastUpdatedTime = DateTime.Now;
             }
             else
             {
                 //login failed
+                m_WebSocket.Close();
+                ErrorMessage = "Logged in failed!";
+            }
+        }
+
+        private bool CanExecuteStartCommand(DynamicViewModel.DynamicViewModel target)
+        {
+            return "False".Equals(((JValue)target["IsRunning"]).Value.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ExecuteStartCommand(DynamicViewModel.DynamicViewModel target)
+        {
+#if SILVERLIGHT
+            m_WebSocket.Query<dynamic>(CommandName.START, ((JValue)target["Name"]).Value, OnActionCallbackAsync);
+#else
+            m_WebSocket.Query<dynamic>(CommandName.START, ((JValue)target["Name"]).Value, OnActionCallback);
+#endif
+        }
+
+        private bool CanExecuteStopCommand(DynamicViewModel.DynamicViewModel target)
+        {
+            return "True".Equals(((JValue)target["IsRunning"]).Value.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ExecuteStopCommand(DynamicViewModel.DynamicViewModel target)
+        {
+#if SILVERLIGHT
+            m_WebSocket.Query<dynamic>(CommandName.STOP, ((JValue)target["Name"]).Value, OnActionCallbackAsync);
+#else
+            m_WebSocket.Query<dynamic>(CommandName.STOP, ((JValue)target["Name"]).Value, OnActionCallback);
+#endif
+        }
+
+#if SILVERLIGHT
+        public void OnActionCallbackAsync(string token, dynamic result)
+        {
+            CreateAsyncOperation<string, dynamic>(OnActionCallback)(token, result);
+        }
+
+        public void OnServerUpdatedAsync(string result)
+        {
+            CreateAsyncOperation<string>(OnServerUpdated)(result);
+        }
+#endif
+
+        void OnServerUpdated(string result)
+        {
+            dynamic nodeInfo = DynamicViewModelFactory.Create(result);
+            Dispatcher.BeginInvoke((Action<dynamic>)OnServerUpdated, nodeInfo);
+        }
+
+        void OnServerUpdated(dynamic nodeInfo)
+        {
+            this.GlobalInfo.UpdateProperties(nodeInfo.GlobalInfo);
+
+            var instances = nodeInfo.Instances as IEnumerable<DynamicViewModel.DynamicViewModel>;
+
+            foreach (var i in instances)
+            {
+                var targetInstance = m_Instances.FirstOrDefault(x =>
+                    ((JValue)x["Name"]).Value.ToString().Equals(((JValue)i["Name"]).Value.ToString(), StringComparison.OrdinalIgnoreCase));
+
+                if (targetInstance != null)
+                {
+                    targetInstance.UpdateProperties(i);
+                    ((DelegateCommand<DynamicViewModel.DynamicViewModel>)targetInstance["StartCommand"]).RaiseCanExecuteChanged();
+                    ((DelegateCommand<DynamicViewModel.DynamicViewModel>)targetInstance["StopCommand"]).RaiseCanExecuteChanged();
+                }
+            }
+
+            LastUpdatedTime = DateTime.Now;
+        }
+
+        void OnActionCallback(string token, dynamic result)
+        {
+            if (result["Result"].ToObject<bool>())
+            {
+                var nodeInfo = ((JObject)result["NodeInfo"]).ToDynamic(new DynamicViewModel.DynamicViewModel());
+                Dispatcher.BeginInvoke((Action<dynamic>)OnServerUpdated, nodeInfo);
+            }
+            else
+            {
+                ErrorMessage = result["Message"].ToString();
             }
         }
 
@@ -127,15 +244,49 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         void WebSocket_Error(object sender, ClientEngine.ErrorEventArgs e)
         {
             if (e.Exception != null)
-                throw e.Exception;
+            {
+                ErrorMessage = e.Exception.Message;
+
+                if (m_WebSocket.State == WebSocketState.None && State == NodeState.Connecting)
+                {
+                    State = NodeState.Offline;
+                }
+            }
         }
 
         void WebSocket_Closed(object sender, EventArgs e)
         {
             State = NodeState.Offline;
+
+            if (string.IsNullOrEmpty(ErrorMessage))
+                ErrorMessage = "Offline";
         }
 
         public string Name { get; private set; }
+
+        private DateTime m_LastUpdatedTime;
+
+        public DateTime LastUpdatedTime
+        {
+            get { return m_LastUpdatedTime; }
+            set
+            {
+                m_LastUpdatedTime = value;
+                RaisePropertyChanged("LastUpdatedTime");
+            }
+        }
+
+        private string m_ErrorMessage;
+
+        public string ErrorMessage
+        {
+            get { return m_ErrorMessage; }
+            set
+            {
+                m_ErrorMessage = value;
+                RaisePropertyChanged("ErrorMessage");
+            }
+        }
 
         private NodeState m_State = NodeState.Offline;
 
@@ -149,15 +300,16 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             }
         }
 
-        private DynamicViewModel.DynamicViewModel m_DetailViewModel;
 
-        public DynamicViewModel.DynamicViewModel DetailViewModel
+        private ObservableCollection<DynamicViewModel.DynamicViewModel> m_Instances;
+
+        public ObservableCollection<DynamicViewModel.DynamicViewModel> Instances
         {
-            get { return m_DetailViewModel; }
+            get { return m_Instances; }
             set
             {
-                m_DetailViewModel = value;
-                RaisePropertyChanged("DetailViewModel");
+                m_Instances = value;
+                RaisePropertyChanged("Instances");
             }
         }
 
@@ -176,9 +328,10 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         public void DataGridLoaded(object sender, RoutedEventArgs e)
         {
             var grid = sender as DataGrid;
+
             var existingColumns = grid.Columns.Select(c => c.Header.ToString()).ToArray();
 
-            foreach(var a in m_ColumnAttributes)
+            foreach (var a in m_ColumnAttributes)
             {
                 if (existingColumns.Contains(a.Name, StringComparer.OrdinalIgnoreCase))
                     continue;

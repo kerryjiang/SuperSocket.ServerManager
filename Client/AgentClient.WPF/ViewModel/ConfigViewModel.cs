@@ -73,43 +73,79 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             var currentNode = SelectedNode;
 
-            m_Nodes.Remove(currentNode);
             SelectedNode = m_Nodes.First();
+            m_Nodes.Remove(currentNode);
 
             m_AgentConfig.Nodes.Remove(currentNode);
 
             //Save
             m_AgentConfig.Save();
+
+            FireEventHandler(Removed, currentNode);
         }
 
         void OnNodeViewModelSaved(object sender, EventArgs e)
         {
             var nodeViewMode = sender as NodeConfigViewModel;
+            var node = new
+            {
+                Name = nodeViewMode.Name,
+                Uri = nodeViewMode.Uri,
+                UserName = nodeViewMode.UserName,
+                Password = nodeViewMode.Password
+            };
 
             var currentNode = SelectedNode;
 
+            var isNew = false;
+
             if (currentNode is NewNodeConfig)
             {
+                var newNode = new NodeConfig();
+                m_Nodes.Add(newNode);
+                SelectedNode = newNode;
+
                 //Update UI
                 m_Nodes.Remove(currentNode);
-
-                currentNode = new NodeConfig();
-                m_Nodes.Add(currentNode);
-                SelectedNode = currentNode;
+                currentNode = newNode;
 
                 m_Nodes.Add(new NewNodeConfig());
 
                 //Update configuration model
                 m_AgentConfig.Nodes.Add(currentNode);
+
+                isNew = true;
             }
 
-            currentNode.Name = nodeViewMode.Name;
-            currentNode.Uri = nodeViewMode.Uri;
-            currentNode.UserName = nodeViewMode.UserName;
-            currentNode.Password = nodeViewMode.Password;
+            currentNode.Name = node.Name;
+            currentNode.Uri = node.Uri;
+            currentNode.UserName = node.UserName;
+            currentNode.Password = node.Password;
 
             //Save
             m_AgentConfig.Save();
+
+            //Added
+            if (isNew)
+            {
+                FireEventHandler(Added, currentNode);
+            }
+            else
+            {
+                FireEventHandler(Updated, currentNode);
+            }
         }
+
+        private void FireEventHandler(EventHandler handler, object sender)
+        {
+            if (handler != null)
+                handler(sender, EventArgs.Empty);
+        }
+
+        public event EventHandler Updated;
+
+        public event EventHandler Added;
+
+        public event EventHandler Removed;
     }
 }
