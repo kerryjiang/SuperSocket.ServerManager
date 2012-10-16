@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using DynamicViewModel;
 using Newtonsoft.Json.Linq;
 using SuperSocket.ClientEngine;
@@ -19,16 +21,11 @@ using SuperSocket.Management.AgentClient.Config;
 using SuperSocket.Management.AgentClient.Metadata;
 using SuperSocket.Management.Server.Model;
 using WebSocket4Net;
-using System.Windows.Threading;
 
 namespace SuperSocket.Management.AgentClient.ViewModel
 {
-    public class NodeMasterViewModel : ViewModelBase
+    public partial class NodeMasterViewModel : ViewModelBase
     {
-#if SILVERLIGHT
-        private static AsyncOperation m_AsyncOper = AsyncOperationManager.CreateOperation(null);
-#endif
-
         private AgentWebSocket m_WebSocket;
         private NodeConfig m_Config;
         private StateFieldMetadata[] m_FieldMetadatas;
@@ -88,13 +85,6 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             websocket.Query<dynamic>(CommandName.LOGIN, (object)loginInfo, OnLoggedInAsync);
 #endif
         }
-
-#if SILVERLIGHT
-        public void OnLoggedInAsync(dynamic result)
-        {
-            CreateAsyncOperation<dynamic>(OnLoggedIn)(result);
-        }
-#endif
 
         void OnLoggedIn(dynamic result)
         {
@@ -163,18 +153,6 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             m_WebSocket.Query<dynamic>(CommandName.STOP, ((JValue)target["Name"]).Value, OnActionCallback);
 #endif
         }
-
-#if SILVERLIGHT
-        public void OnActionCallbackAsync(string token, dynamic result)
-        {
-            CreateAsyncOperation<string, dynamic>(OnActionCallback)(token, result);
-        }
-
-        public void OnServerUpdatedAsync(string result)
-        {
-            CreateAsyncOperation<string>(OnServerUpdated)(result);
-        }
-#endif
 
         void OnServerUpdated(string result)
         {
@@ -245,7 +223,10 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             if (e.Exception != null)
             {
-                ErrorMessage = e.Exception.Message;
+                if (e.Exception is SocketException && ((SocketException)e.Exception).ErrorCode == (int)SocketError.AccessDenied)
+                    ErrorMessage = (new SocketException((int)SocketError.ConnectionRefused)).Message;
+                else
+                    ErrorMessage = e.Exception.Message;
 
                 if (m_WebSocket.State == WebSocketState.None && State == NodeState.Connecting)
                 {
@@ -419,50 +400,6 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             return string.Format("[{0}][{1}]", parent, name);
         }
-#endif
-
-#if SILVERLIGHT
-
-        protected Action CreateAsyncOperation(Action operation)
-        {
-            return () =>
-            {
-                m_AsyncOper.Post(x => operation(), null);
-            };
-        }
-
-        protected Action<T> CreateAsyncOperation<T>(Action<T> operation)
-        {
-            return (t) =>
-            {
-                m_AsyncOper.Post(x => operation((T)x), t);
-            };
-        }
-
-        protected Action<T1, T2> CreateAsyncOperation<T1, T2>(Action<T1, T2> operation)
-        {
-            return (t1, t2) =>
-            {
-                m_AsyncOper.Post(x =>
-                {
-                    var args = (Tuple<T1, T2>)x;
-                    operation(args.Item1, args.Item2);
-                }, new Tuple<T1, T2>(t1, t2));
-            };
-        }
-
-        protected Action<T1, T2, T3> CreateAsyncOperation<T1, T2, T3>(Action<T1, T2, T3> operation)
-        {
-            return (t1, t2, t3) =>
-            {
-                m_AsyncOper.Post(x =>
-                {
-                    var args = (Tuple<T1, T2, T3>)x;
-                    operation(args.Item1, args.Item2, args.Item3);
-                }, new Tuple<T1, T2, T3>(t1, t2, t3));
-            };
-        }
-
 #endif
     }
 }

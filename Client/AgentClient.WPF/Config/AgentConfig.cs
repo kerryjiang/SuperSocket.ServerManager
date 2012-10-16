@@ -27,6 +27,7 @@ namespace SuperSocket.Management.AgentClient.Config
             {
                 var config = new AgentConfig();
                 config.Save();
+                return config;
             }
 
             return File.ReadAllText(SAVE_PATH, Encoding.UTF8).XmlDeserialize<AgentConfig>();
