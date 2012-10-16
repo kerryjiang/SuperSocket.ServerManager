@@ -11,8 +11,6 @@ namespace SuperSocket.Management.AgentClient
 {
     class AgentWebSocket : JsonWebSocket
     {
-        private static Type m_DynamicTypeInterface = typeof(IDynamicMetaObjectProvider);
-
         public AgentWebSocket(string uri)
             : base(uri)
         {
@@ -26,9 +24,6 @@ namespace SuperSocket.Management.AgentClient
 
         protected override object DeserializeObject(string json, Type type)
         {
-            //if(type == typeof(JObject))
-            //    return JObject.Parse(json);
-
             return JsonConvert.DeserializeObject(json, type);
         }
     }

@@ -5,24 +5,31 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
+    <UserControl.Resources>
+        <cv:VisibilityConverter x:Key="VisibilityConverter"></cv:VisibilityConverter>
+    </UserControl.Resources>
     <Grid Background="{StaticResource HoverGradient}" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"></ColumnDefinition>
             <ColumnDefinition Width="5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center" Grid.Column="0">
+                    VerticalAlignment="Center" Grid.Column="0">
             <TextBlock Style="{StaticResource NodeTitle}"
                        Text="{Binding Name}" Grid.Row="0"></TextBlock>
             <TextBlock Style="{StaticResource NodeStatus}"
-                           Text="{Binding State, StringFormat=' [\{0\}]'}" Grid.Row="0"></TextBlock>
+                       Text="{Binding State, StringFormat=' [\{0\}]'}" Grid.Row="0"></TextBlock>
         </StackPanel>
-        <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Right"
-                        Margin="0,0,10,0">
-            <TextBlock Text="{Binding LastUpdatedTime, StringFormat='Last Updated Time: \{0\}'}"></TextBlock>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,10,0">
+            <TextBlock Visibility="{Binding State, Converter={StaticResource VisibilityConverter}}"
+                       Text="{Binding LastUpdatedTime, StringFormat='Last Updated Time: \{0\}'}"></TextBlock>
         </StackPanel>
     </Grid>
 </UserControl>

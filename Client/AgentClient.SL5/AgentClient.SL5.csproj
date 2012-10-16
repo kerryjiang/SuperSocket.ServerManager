@@ -121,6 +121,9 @@
     <Compile Include="..\AgentClient.WPF\Converters\ToStringConverter.cs">
       <Link>Converters\ToStringConverter.cs</Link>
     </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\VisibilityConverter.cs">
+      <Link>Converters\VisibilityConverter.cs</Link>
+    </Compile>
     <Compile Include="..\AgentClient.WPF\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
