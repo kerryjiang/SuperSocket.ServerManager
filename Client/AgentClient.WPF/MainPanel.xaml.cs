@@ -24,12 +24,27 @@ namespace SuperSocket.Management.AgentClient
         public MainPanel()
         {
             InitializeComponent();
+            this.Loaded += MainPanel_Loaded;
+        }
+
+        void MainPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            var mainViewModel = this.DataContext as MainViewModel;
+
+            if (!mainViewModel.Nodes.Any())
+            {
+                ShowConfigDialog(mainViewModel);
+            }
+        }
+
+        private void Configure_Click(object sender, RoutedEventArgs e)
+        {
+            ShowConfigDialog(this.DataContext as MainViewModel);
         }
 
 #if SILVERLIGHT
-        private void Configure_Click(object sender, RoutedEventArgs e)
+        private void ShowConfigDialog(MainViewModel mainViewModel)
         {
-            var mainViewModel = this.DataContext as MainViewModel;
             var win = new ChildWindow();
             win.Title = "Configure";
 
@@ -48,10 +63,8 @@ namespace SuperSocket.Management.AgentClient
             win.Show();
         }
 #else
-        private void Configure_Click(object sender, RoutedEventArgs e)
+        private void ShowConfigDialog(MainViewModel mainViewModel)
         {
-            var mainViewModel = this.DataContext as MainViewModel;
-
             var win = new Window();
             win.Title = "Configure";
             win.Owner = App.Current.MainWindow;
