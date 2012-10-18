@@ -28,7 +28,8 @@ namespace SuperSocket.Management.AgentClient
         private void Grid_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var viewModel = this.DataContext as NodeMasterViewModel;
-            viewModel.NodeDetailDataContextChanged(sender, e);
+            if (viewModel != null)
+                viewModel.NodeDetailDataContextChanged(sender, e);
         }
     }
 }

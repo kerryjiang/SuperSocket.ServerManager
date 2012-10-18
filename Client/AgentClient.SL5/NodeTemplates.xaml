@@ -62,37 +62,33 @@
         <StackPanel Orientation="Vertical">
             <c:NodeHeader></c:NodeHeader>
             <ContentControl Name="PlaceHolderContainer" Content="{Binding}"
-                                        ContentTemplate="{StaticResource NodeTemplateOffline}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Stretch">
+                            ContentTemplate="{StaticResource NodeTemplateState}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch">
             </ContentControl>
             <i:Interaction.Triggers>
                 <ia:DataTrigger Binding="{Binding State}" Value="Connecting">
                     <ia:DataTrigger.Actions>
-                        <ia:ChangePropertyAction TargetName="PlaceHolderContainer"
-                                                         PropertyName="ContentTemplate"
-                                                         Value="{StaticResource NodeTemplateState}" />
-                    </ia:DataTrigger.Actions>
-                </ia:DataTrigger>
-                <ia:DataTrigger Binding="{Binding State}" Value="Logging">
-                    <ia:DataTrigger.Actions>
-                        <ia:ChangePropertyAction TargetName="PlaceHolderContainer"
-                                                         PropertyName="ContentTemplate"
-                                                         Value="{StaticResource NodeTemplateState}" />
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateState}" />
                     </ia:DataTrigger.Actions>
                 </ia:DataTrigger>
                 <ia:DataTrigger Binding="{Binding State}" Value="Connected">
                     <ia:DataTrigger.Actions>
-                        <ia:ChangePropertyAction TargetName="PlaceHolderContainer"
-                                                         PropertyName="ContentTemplate"
-                                                         Value="{StaticResource NodeTemplateConnected}" />
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateConnected}" />
                     </ia:DataTrigger.Actions>
                 </ia:DataTrigger>
                 <ia:DataTrigger Binding="{Binding State}" Value="Offline">
                     <ia:DataTrigger.Actions>
-                        <ia:ChangePropertyAction TargetName="PlaceHolderContainer"
-                                                         PropertyName="ContentTemplate"
-                                                         Value="{StaticResource NodeTemplateOffline}" />
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateOffline}" />
                     </ia:DataTrigger.Actions>
                 </ia:DataTrigger>
             </i:Interaction.Triggers>

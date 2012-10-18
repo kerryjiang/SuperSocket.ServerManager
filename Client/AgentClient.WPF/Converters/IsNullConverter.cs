@@ -9,20 +9,22 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using SuperSocket.Management.AgentClient.ViewModel;
 
 namespace SuperSocket.Management.AgentClient.Converters
 {
-    public class VisibilityConverter : IValueConverter
+    public class IsNullConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var state = (NodeState)value;
+            if (value == null)
+                return parameter;
 
-            if (state == NodeState.Connected)
-                return Visibility.Visible;
+            var strValue = value as string;
 
-            return Visibility.Collapsed;
+            if (string.IsNullOrEmpty(strValue))
+                return parameter;
+
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -72,11 +72,13 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         void OnNodeViewModelRemoved(object sender, EventArgs e)
         {
             var currentNode = SelectedNode;
-
-            SelectedNode = m_Nodes.First();
+            
+            //Remove
             m_Nodes.Remove(currentNode);
-
             m_AgentConfig.Nodes.Remove(currentNode);
+
+            //Select a new node
+            SelectedNode = m_Nodes.First();
 
             //Save
             m_AgentConfig.Save();

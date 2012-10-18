@@ -82,7 +82,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="WebSocket4Net">
-      <HintPath>..\..\Reference\WebSocket4Net\sl40\Debug\WebSocket4Net.dll</HintPath>
+      <HintPath>..\..\Reference\WebSocket4Net\sl50\$(Configuration)\WebSocket4Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -118,11 +118,14 @@
     <Compile Include="..\AgentClient.WPF\Converters\DebugConverter.cs">
       <Link>Converters\DebugConverter.cs</Link>
     </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\IsNullConverter.cs">
+      <Link>Converters\IsNullConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\NodeStateVisibilityConverter.cs">
+      <Link>Converters\NodeStateVisibilityConverter.cs</Link>
+    </Compile>
     <Compile Include="..\AgentClient.WPF\Converters\ToStringConverter.cs">
       <Link>Converters\ToStringConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\AgentClient.WPF\Converters\VisibilityConverter.cs">
-      <Link>Converters\VisibilityConverter.cs</Link>
     </Compile>
     <Compile Include="..\AgentClient.WPF\Extensions.cs">
       <Link>Extensions.cs</Link>

@@ -89,8 +89,9 @@
     </Compile>
     <Compile Include="Controls\PasswordHelper.cs" />
     <Compile Include="Converters\DebugConverter.cs" />
+    <Compile Include="Converters\IsNullConverter.cs" />
     <Compile Include="Converters\ToStringConverter.cs" />
-    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Converters\NodeStateVisibilityConverter.cs" />
     <Compile Include="MainPanel.xaml.cs">
       <DependentUpon>MainPanel.xaml</DependentUpon>
     </Compile>

@@ -58,6 +58,13 @@
         <Setter Property="Foreground" Value="#FF255B7C"></Setter>
         <Setter Property="FontFamily" Value="Verdana"></Setter>
     </Style>
+    <Style TargetType="TextBlock" x:Key="NodeError">
+        <Setter Property="FontSize" Value="14"></Setter>
+        <Setter Property="Margin" Value="5"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+        <Setter Property="Foreground" Value="Red"></Setter>
+        <Setter Property="FontFamily" Value="Verdana"></Setter>
+    </Style>
     <Style TargetType="TextBlock" x:Key="GlobalInfoLabel">
         <Setter Property="FontSize" Value="13"></Setter>
         <Setter Property="Margin" Value="2"></Setter>

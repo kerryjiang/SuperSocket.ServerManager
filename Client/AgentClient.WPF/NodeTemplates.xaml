@@ -62,22 +62,12 @@
         <StackPanel Orientation="Vertical">
             <c:NodeHeader></c:NodeHeader>
             <ContentControl Name="PlaceHolderContainer" Content="{Binding}"
-                            ContentTemplate="{StaticResource NodeTemplateOffline}"
+                            ContentTemplate="{StaticResource NodeTemplateState}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch">
             </ContentControl>
         </StackPanel>
-        <DataTemplate.Triggers>
-            <DataTrigger Binding="{Binding State}" Value="Connecting">
-                <Setter TargetName="PlaceHolderContainer"
-                                    Property="ContentTemplate"
-                                    Value="{StaticResource NodeTemplateState}"></Setter>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding State}" Value="Logging">
-                <Setter TargetName="PlaceHolderContainer"
-                                    Property="ContentTemplate"
-                                    Value="{StaticResource NodeTemplateState}"></Setter>
-            </DataTrigger>
+        <DataTemplate.Triggers>            
             <DataTrigger Binding="{Binding State}" Value="Connected">
                 <Setter TargetName="PlaceHolderContainer"
                                     Property="ContentTemplate"

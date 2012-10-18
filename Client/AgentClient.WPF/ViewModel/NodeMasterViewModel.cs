@@ -30,9 +30,13 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         private NodeConfig m_Config;
         private StateFieldMetadata[] m_FieldMetadatas;
 
+        private bool m_LoginFailed = false;
+
         private ClientFieldAttribute[] m_ColumnAttributes;
 
         private ClientFieldAttribute[] m_NodeDetailAttributes;
+
+        private Timer m_ReconnectTimer;
 
         public NodeConfig Config
         {
@@ -43,13 +47,15 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             m_Config = config;
             Name = m_Config.Name;
+            ConnectCommand = new DelegateCommand(ExecuteConnectCommand);
 
             try
             {
                 m_WebSocket = new AgentWebSocket(config.Uri);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                ErrorMessage = e.Message;
                 return;
             }
 
@@ -66,8 +72,22 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             m_WebSocket.Opened += new EventHandler(CreateAsyncOperation<object, EventArgs>(WebSocket_Opened));
             m_WebSocket.On<string>(CommandName.UPDATE, OnServerUpdatedAsync);
 #endif
-            m_WebSocket.Open();
+            StartConnect();
+        }
+
+        void StartConnect()
+        {
+            m_LoginFailed = false;
+
+#if !SILVERLIGHT
             State = NodeState.Connecting;
+#else
+            if (Dispatcher.CheckAccess())
+                State = NodeState.Connecting;
+            else
+                Dispatcher.BeginInvoke(() => State = NodeState.Connecting);
+#endif
+            m_WebSocket.Open();
         }
 
         void WebSocket_Opened(object sender, EventArgs e)
@@ -120,6 +140,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             }
             else
             {
+                m_LoginFailed = true;
                 //login failed
                 m_WebSocket.Close();
                 ErrorMessage = "Logged in failed!";
@@ -231,6 +252,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
                 if (m_WebSocket.State == WebSocketState.None && State == NodeState.Connecting)
                 {
                     State = NodeState.Offline;
+                    OnDisconnected();
                 }
             }
         }
@@ -241,6 +263,31 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
             if (string.IsNullOrEmpty(ErrorMessage))
                 ErrorMessage = "Offline";
+
+            OnDisconnected();
+        }
+
+        void OnDisconnected()
+        {
+            //Don't reconnect if the client failed by login
+            if (m_LoginFailed)
+                return;
+
+            if (m_ReconnectTimer == null)
+            {
+                m_ReconnectTimer = new Timer(ReconnectTimerCallback);
+            }
+
+            m_ReconnectTimer.Change(1000 * 60 * 5, Timeout.Infinite);//5 minutes
+        }
+
+        void ReconnectTimerCallback(object state)
+        {
+            //already open or openning
+            if (m_WebSocket.State == WebSocketState.Connecting || m_WebSocket.State == WebSocketState.Open)
+                return;
+
+            StartConnect();
         }
 
         public string Name { get; private set; }
@@ -281,6 +328,12 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             }
         }
 
+        public DelegateCommand ConnectCommand { get; private set; }
+
+        private void ExecuteConnectCommand()
+        {
+            StartConnect();
+        }
 
         private ObservableCollection<DynamicViewModel.DynamicViewModel> m_Instances;
 

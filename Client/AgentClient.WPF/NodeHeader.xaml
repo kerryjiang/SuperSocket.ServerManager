@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
     <UserControl.Resources>
-        <cv:VisibilityConverter x:Key="VisibilityConverter"></cv:VisibilityConverter>
+        <cv:NodeStateVisibilityConverter x:Key="NodeStateVisibilityConverter"></cv:NodeStateVisibilityConverter>
     </UserControl.Resources>
     <Grid Background="{StaticResource HoverGradient}" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -28,8 +28,11 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     Margin="0,0,10,0">
-            <TextBlock Visibility="{Binding State, Converter={StaticResource VisibilityConverter}}"
+            <TextBlock Visibility="{Binding State, Converter={StaticResource NodeStateVisibilityConverter}, ConverterParameter='Connected'}"
                        Text="{Binding LastUpdatedTime, StringFormat='Last Updated Time: \{0\}'}"></TextBlock>
+            <Button Visibility="{Binding State, Converter={StaticResource NodeStateVisibilityConverter}, ConverterParameter='Offline'}"
+                    Content="Connect"
+                    Command="{Binding ConnectCommand}"></Button>
         </StackPanel>
     </Grid>
 </UserControl>

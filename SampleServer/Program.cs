@@ -15,6 +15,10 @@ namespace SampleServer
         {
             Console.WriteLine("Press any key to start server!");
 
+            Console.ReadKey();
+            Console.WriteLine();
+            Console.WriteLine("Starting...");
+
             var bootstrap = BootstrapFactory.CreateBootstrap();
 
             if (!bootstrap.Initialize())
