@@ -492,11 +492,11 @@
             Gets all sessions in sessions snapshot.
             </summary>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppServerBase`2.CreateServerState">
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.UpdateServerState(SuperSocket.SocketBase.ServerState)">
             <summary>
-            Creates the state of the server, you can override this method to return your own ServerState instance.
+            Updates the state of the server.
             </summary>
-            <returns></returns>
+            <param name="serverState">State of the server.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnServerStateCollected(SuperSocket.SocketBase.GlobalPerformanceData,SuperSocket.SocketBase.ServerState)">
             <summary>
@@ -638,6 +638,14 @@
             <summary>
             Gets the total session count.
             </summary>
+        </member>
+        <member name="P:SuperSocket.SocketBase.AppServerBase`2.ServerStateType">
+            <summary>
+            Gets the type of the server state. The type must inherit from ServerState
+            </summary>
+            <value>
+            The type of the server state.
+            </value>
         </member>
         <member name="P:SuperSocket.SocketBase.AppServerBase`2.State">
             <summary>

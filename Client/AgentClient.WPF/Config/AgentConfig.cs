@@ -26,6 +26,7 @@ namespace SuperSocket.Management.AgentClient.Config
             if (!File.Exists(SAVE_PATH))
             {
                 var config = new AgentConfig();
+                config.Nodes = new List<NodeConfig>();
                 config.Save();
                 return config;
             }
@@ -47,6 +48,7 @@ namespace SuperSocket.Management.AgentClient.Config
             if (string.IsNullOrEmpty(configContent))
             {
                 var config = new AgentConfig();
+                config.Nodes = new List<NodeConfig>();
                 config.Save();
                 return config;
             }
