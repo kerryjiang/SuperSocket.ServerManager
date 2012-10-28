@@ -17,7 +17,7 @@ namespace SuperSocket.Management.Server.Model
         /// <value>
         /// The global info.
         /// </value>
-        public GlobalPerformanceData GlobalInfo { get; set; }
+        public NodeSummary GlobalInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the instances.
@@ -25,6 +25,6 @@ namespace SuperSocket.Management.Server.Model
         /// <value>
         /// The instances.
         /// </value>
-        public ServerState[] Instances { get; set; }
+        public ServerSummary[] Instances { get; set; }
     }
 }

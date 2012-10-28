@@ -75,19 +75,19 @@ namespace SuperSocket.Management.Server
         }
 
         /// <summary>
-        /// Called when [server state collected].
+        /// Called when [server summary collected].
         /// </summary>
-        /// <param name="globalPerfData">The global perf data.</param>
-        /// <param name="state">The state.</param>
-        protected override void OnServerStateCollected(GlobalPerformanceData globalPerfData, ServerState state)
+        /// <param name="nodeSummary">The node summary.</param>
+        /// <param name="serverSummary">The server summary.</param>
+        protected override void OnServerSummaryCollected(NodeSummary nodeSummary, ServerSummary serverSummary)
         {
-            Async.AsyncRun(this, (o) => MergeServerState(o), globalPerfData);
-            base.OnServerStateCollected(globalPerfData, state);
+            Async.AsyncRun(this, (o) => MergeServerSummary(o), nodeSummary);
+            base.OnServerSummaryCollected(nodeSummary, serverSummary);
         }
 
-        private void MergeServerState(object state)
+        private void MergeServerSummary(object state)
         {
-            var globalPerfData = state as GlobalPerformanceData;
+            var globalPerfData = state as NodeSummary;
 
             var instances = Bootstrap.AppServers.OfType<IWorkItem>().Where(s => !s.Name.Equals(this.Name, StringComparison.OrdinalIgnoreCase));
             
@@ -99,7 +99,7 @@ namespace SuperSocket.Management.Server
             CurrentNodeInfo = new NodeInfo
                 {
                     GlobalInfo = globalPerfData,
-                    Instances = instances.Select(s => s.State).ToArray()
+                    Instances = instances.Select(s => s.Summary).ToArray()
                 };
 
             if (StateFieldMetadatas == null)
@@ -123,11 +123,11 @@ namespace SuperSocket.Management.Server
 
         internal StateFieldMetadata[] StateFieldMetadatas { get; private set; }
 
-        internal StateFieldMetadata[] GetStateFieldMetadatas(ServerState[] states)
+        internal StateFieldMetadata[] GetStateFieldMetadatas(ServerSummary[] summaries)
         {
             var stateMetadataDict = new Dictionary<Type, StateFieldMetadata>();
 
-            foreach (var s in states)
+            foreach (var s in summaries)
             {
                 StateFieldMetadata metadata;
 
@@ -144,7 +144,7 @@ namespace SuperSocket.Management.Server
                 }
             }
 
-            var globalDataType = typeof(GlobalPerformanceData);
+            var globalDataType = typeof(NodeSummary);
 
             stateMetadataDict.Add(globalDataType, new StateFieldMetadata
                 {
