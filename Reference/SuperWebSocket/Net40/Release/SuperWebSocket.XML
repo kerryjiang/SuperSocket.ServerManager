@@ -354,6 +354,22 @@
             </summary>
             <param name="builder">The builder.</param>
         </member>
+        <member name="T:SuperWebSocket.IBinaryDataConverter">
+            <summary>
+            The converter interface for converting binary data to text message
+            </summary>
+        </member>
+        <member name="M:SuperWebSocket.IBinaryDataConverter.ToString(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
         <member name="T:SuperWebSocket.JsonWebSocketSession">
             <summary>
             Json websocket session
@@ -864,7 +880,7 @@
             Protocol processor interface
             </summary>
         </member>
-        <member name="M:SuperWebSocket.Protocol.IProtocolProcessor.Handshake(SuperWebSocket.IWebSocketSession,SuperWebSocket.Protocol.WebSocketRequestFilterBase,SuperSocket.SocketBase.Protocol.IRequestFilter{SuperWebSocket.Protocol.IWebSocketFragment}@)">
+        <member name="M:SuperWebSocket.Protocol.IProtocolProcessor.Handshake(SuperWebSocket.IWebSocketSession,SuperWebSocket.Protocol.WebSocketReceiveFilterBase,SuperSocket.SocketBase.Protocol.IReceiveFilter{SuperWebSocket.Protocol.IWebSocketFragment}@)">
             <summary>
             Handshakes the specified session.
             </summary>
@@ -997,28 +1013,29 @@
             http://tools.ietf.org/html/rfc6455
             </summary>
         </member>
-        <member name="T:SuperWebSocket.Protocol.WebSocketRequestFilterBase">
+        <member name="T:SuperWebSocket.Protocol.WebSocketReceiveFilterBase">
             <summary>
-            WebSocketRequestFilter basis
+            WebSocketReceiveFilter basis
             </summary>
         </member>
-        <member name="F:SuperWebSocket.Protocol.WebSocketRequestFilterBase.SecKey3Len">
+        <member name="F:SuperWebSocket.Protocol.WebSocketReceiveFilterBase.SecKey3Len">
             <summary>
             The length of Sec3Key
             </summary>
         </member>
-        <member name="M:SuperWebSocket.Protocol.WebSocketRequestFilterBase.#ctor(SuperWebSocket.IWebSocketSession)">
+        <member name="M:SuperWebSocket.Protocol.WebSocketReceiveFilterBase.#ctor(SuperWebSocket.IWebSocketSession)">
             <summary>
-            Initializes a new instance of the <see cref="T:SuperWebSocket.Protocol.WebSocketRequestFilterBase"/> class.
+            Initializes a new instance of the <see cref="T:SuperWebSocket.Protocol.WebSocketReceiveFilterBase"/> class.
             </summary>
+            <param name="session">The session.</param>
         </member>
-        <member name="M:SuperWebSocket.Protocol.WebSocketRequestFilterBase.#ctor(SuperWebSocket.Protocol.WebSocketRequestFilterBase)">
+        <member name="M:SuperWebSocket.Protocol.WebSocketReceiveFilterBase.#ctor(SuperWebSocket.Protocol.WebSocketReceiveFilterBase)">
             <summary>
-            Initializes a new instance of the <see cref="T:SuperWebSocket.Protocol.WebSocketRequestFilterBase"/> class.
+            Initializes a new instance of the <see cref="T:SuperWebSocket.Protocol.WebSocketReceiveFilterBase"/> class.
             </summary>
-            <param name="previousRequestFilter">The previous request filter.</param>
+            <param name="previousReceiveFilter">The previous receive filter.</param>
         </member>
-        <member name="M:SuperWebSocket.Protocol.WebSocketRequestFilterBase.Handshake(SuperWebSocket.Protocol.IProtocolProcessor,SuperWebSocket.IWebSocketSession)">
+        <member name="M:SuperWebSocket.Protocol.WebSocketReceiveFilterBase.Handshake(SuperWebSocket.Protocol.IProtocolProcessor,SuperWebSocket.IWebSocketSession)">
             <summary>
             Handshakes the specified protocol processor.
             </summary>
@@ -1026,7 +1043,7 @@
             <param name="session">The session.</param>
             <returns></returns>
         </member>
-        <member name="P:SuperWebSocket.Protocol.WebSocketRequestFilterBase.HandshakeRequestInfo">
+        <member name="P:SuperWebSocket.Protocol.WebSocketReceiveFilterBase.HandshakeRequestInfo">
             <summary>
             Gets the handshake request info.
             </summary>
@@ -1069,11 +1086,6 @@
             </summary>
             <param name="session">The session.</param>
             <param name="requestInfo">The request info.</param>
-        </member>
-        <member name="P:SuperWebSocket.SubProtocol.ISubCommand`1.Name">
-            <summary>
-            Gets the name.
-            </summary>
         </member>
         <member name="M:SuperWebSocket.SubProtocol.SubCommandBase`1.ExecuteCommand(`0,SuperWebSocket.SubProtocol.SubRequestInfo)">
             <summary>
@@ -1187,11 +1199,11 @@
             </summary>
             <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.ISubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.ISubProtocol`1.Initialize(SuperSocket.SocketBase.IAppServer,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
-            <param name="config">The config.</param>
+            <param name="appServer">The app server.</param>
             <param name="protocolConfig">The protocol config.</param>
             <param name="logger">The logger.</param>
             <returns></returns>
@@ -1220,11 +1232,11 @@
             </summary>
             <param name="name">The name.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.SubProtocolBase`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.SubProtocolBase`1.Initialize(SuperSocket.SocketBase.IAppServer,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
-            <param name="config">The config.</param>
+            <param name="appServer">The app server.</param>
             <param name="protocolConfig">The protocol config.</param>
             <param name="logger">The logger.</param>
             <returns></returns>
@@ -1300,11 +1312,11 @@
             <param name="commandAssemblies">The command assemblies.</param>
             <param name="requestInfoParser">The request info parser.</param>
         </member>
-        <member name="M:SuperWebSocket.SubProtocol.BasicSubProtocol`1.Initialize(SuperSocket.SocketBase.Config.IServerConfig,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
+        <member name="M:SuperWebSocket.SubProtocol.BasicSubProtocol`1.Initialize(SuperSocket.SocketBase.IAppServer,SuperWebSocket.Config.SubProtocolConfig,SuperSocket.SocketBase.Logging.ILog)">
             <summary>
             Initializes with the specified config.
             </summary>
-            <param name="config">The config.</param>
+            <param name="appServer">The app server.</param>
             <param name="protocolConfig">The protocol config.</param>
             <param name="logger">The logger.</param>
             <returns></returns>
@@ -1362,6 +1374,19 @@
             <param name="commandAssemblies">The command assemblies.</param>
             <param name="requestInfoParser">The request info parser.</param>
         </member>
+        <member name="T:SuperWebSocket.SubProtocol.ISubRequestInfo">
+            <summary>
+            The basic interface of SubRequestInfo
+            </summary>
+        </member>
+        <member name="P:SuperWebSocket.SubProtocol.ISubRequestInfo.Token">
+            <summary>
+            Gets the token.
+            </summary>
+            <value>
+            The token.
+            </value>
+        </member>
         <member name="T:SuperWebSocket.SubProtocol.JsonSubCommand`1">
             <summary>
             JsonSubCommand
@@ -1412,6 +1437,19 @@
             SubCommand base
             </summary>
         </member>
+        <member name="T:SuperWebSocket.SubProtocol.SubCommandFilterAttribute">
+            <summary>
+            SubCommandFilter Attribute
+            </summary>
+        </member>
+        <member name="P:SuperWebSocket.SubProtocol.SubCommandFilterAttribute.SubProtocol">
+            <summary>
+            Gets or sets the sub protocol.
+            </summary>
+            <value>
+            The sub protocol.
+            </value>
+        </member>
         <member name="T:SuperWebSocket.SubProtocol.SubRequestInfo">
             <summary>
             SubProtocol RequestInfo type
@@ -1429,6 +1467,36 @@
             <summary>
             Gets the token of this request, used for callback
             </summary>
+        </member>
+        <member name="T:SuperWebSocket.TextEncodingBinaryDataConverter">
+            <summary>
+            Text encoding binary data converter
+            </summary>
+        </member>
+        <member name="M:SuperWebSocket.TextEncodingBinaryDataConverter.#ctor(System.Text.Encoding)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SuperWebSocket.TextEncodingBinaryDataConverter"/> class.
+            </summary>
+            <param name="encoding">The encoding.</param>
+        </member>
+        <member name="M:SuperWebSocket.TextEncodingBinaryDataConverter.ToString(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="P:SuperWebSocket.TextEncodingBinaryDataConverter.Encoding">
+            <summary>
+            Gets the encoding.
+            </summary>
+            <value>
+            The encoding.
+            </value>
         </member>
         <member name="T:SuperWebSocket.WebSocketProtocol">
             <summary>
@@ -1557,7 +1625,15 @@
             <param name="type">The type.</param>
             <returns></returns>
         </member>
-        <member name="P:SuperWebSocket.WebSocketServer`1.RequestFilterFactory">
+        <member name="P:SuperWebSocket.WebSocketServer`1.BinaryDataConverter">
+            <summary>
+            Gets or sets the binary data converter.
+            </summary>
+            <value>
+            The binary data converter.
+            </value>
+        </member>
+        <member name="P:SuperWebSocket.WebSocketServer`1.ReceiveFilterFactory">
             <summary>
             Gets the request filter factory.
             </summary>
@@ -1605,7 +1681,7 @@
             Gets the app server.
             </summary>
         </member>
-        <member name="M:SuperWebSocket.Protocol.WebSocketDataRequestFilter.Reset">
+        <member name="M:SuperWebSocket.Protocol.WebSocketDataReceiveFilter.Reset">
             <summary>
             Resets this instance.
             </summary>
